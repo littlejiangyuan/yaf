@@ -333,6 +333,7 @@ PHP_METHOD(yaf_application, __construct) {
 
 	self = getThis();
 
+	//config表示配置文件 section表示环境
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z|z", &config, &section) == FAILURE) {
 		YAF_UNINITIALIZED_OBJECT(getThis());
 		return;
@@ -752,6 +753,16 @@ YAF_STARTUP_FUNCTION(application) {
 
 	yaf_application_ce = zend_register_internal_class_ex(&ce, NULL, NULL TSRMLS_CC);
 	yaf_application_ce->ce_flags |= ZEND_ACC_FINAL_CLASS;
+
+	/**
+	 *
+	 * _app          Yaf_Application通过特殊的方式实现了单利模式, 此属性保存当前实例
+	 * _config       全局配置实例
+	 * _dispatcher   Yaf_Dispatcher实例
+	 * _modules      存在的模块名, 从配置文件中ap.modules读取
+	 * _environ      当前的环境名, 也就是Yaf_Application在读取配置的时候, 获取的配置节名字
+	 * _run          布尔值, 指明当前的Yaf_Application是否已经运行
+	 */
 
 	zend_declare_property_null(yaf_application_ce, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_CONFIG), 	ZEND_ACC_PROTECTED TSRMLS_CC);
 	zend_declare_property_null(yaf_application_ce, ZEND_STRL(YAF_APPLICATION_PROPERTY_NAME_DISPATCHER), 	ZEND_ACC_PROTECTED TSRMLS_CC);

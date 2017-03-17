@@ -494,6 +494,10 @@ int yaf_loader_register_namespace_single(char *prefix, uint len TSRMLS_DC) {
 	if (YAF_G(local_namespaces)) {
 		uint orig_len = strlen(YAF_G(local_namespaces));
 		YAF_G(local_namespaces) = erealloc(YAF_G(local_namespaces), orig_len + 1 + len + 1);
+		/**
+		 * int snprintf(char *str, size_t size, const char *format, ...)
+		 * 格式化字符串后复制size-1个字符到str中，并在其后添加结束符
+		 */
 		snprintf(YAF_G(local_namespaces) + orig_len, len + 2, "%c%s", DEFAULT_DIR_SEPARATOR, prefix);
 	} else {
 		YAF_G(local_namespaces) = emalloc(len + 1 + 1);

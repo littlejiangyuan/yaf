@@ -83,8 +83,10 @@ static yaf_session_t * yaf_session_instance(TSRMLS_D) {
 	MAKE_STD_ZVAL(instance);
 	object_init_ex(instance, yaf_session_ce);
 
+	//session start
 	yaf_session_start(instance TSRMLS_CC);
 
+	//全局符号表是否有$_SESSION，
 	if (zend_hash_find(&EG(symbol_table), ZEND_STRS("_SESSION"), (void **)&sess) == FAILURE || Z_TYPE_PP(sess) != IS_ARRAY) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Attempt to start session failed");
 		zval_ptr_dtor(&instance);
@@ -149,7 +151,7 @@ PHP_METHOD(yaf_session, __clone) {
 
 /** {{{ proto public Yaf_Session::getInstance(void)
 */
-PHP_METHOD(yaf_session, getInstance) {
+PHP_METHOD(yaf_session, getInstance) {//属性_instance
 	yaf_session_t *instance = zend_read_static_property(yaf_session_ce, ZEND_STRL(YAF_SESSION_PROPERTY_NAME_INSTANCE), 1 TSRMLS_CC);
 
 	if (Z_TYPE_P(instance) != IS_OBJECT || !instanceof_function(Z_OBJCE_P(instance), yaf_session_ce TSRMLS_CC)) {

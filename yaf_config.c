@@ -327,7 +327,8 @@ yaf_config_t * yaf_config_instance(yaf_config_t *this_ptr, zval *arg1, zval *arg
 	}
 
 	if (Z_TYPE_P(arg1) == IS_STRING) {
-		if (strncasecmp(Z_STRVAL_P(arg1) + Z_STRLEN_P(arg1) - 3, "ini", 3) == 0) {
+		//判断是不是ini结尾
+		if (strncasecmp(Z_STRVAL_P(arg1) + Z_STRLEN_P(arg1) - 3, "ini", 3) == 0) { //strncasecmp()用来比较参数s1和s2字符串前n个字符，比较时会自动忽略大小写的差异。
 			if (YAF_G(cache_config)) {
 				if ((instance = yaf_config_ini_unserialize(this_ptr, arg1, arg2 TSRMLS_CC))) {
 					return instance;

@@ -44,7 +44,13 @@
 #include "yaf_registry.h"
 #include "yaf_session.h"
 
-ZEND_DECLARE_MODULE_GLOBALS(yaf);
+
+/**zend_API.h
+ * #define ZEND_DECLARE_MODULE_GLOBALS(module_name)		zend_##module_name##_globals module_name##_globals;
+ * #define ZEND_EXTERN_MODULE_GLOBALS(module_name)		extern zend_##module_name##_globals module_name##_globals;
+ * #define ZEND_INIT_MODULE_GLOBALS(module_name, globals_ctor, globals_dtor)	globals_ctor(&module_name##_globals);
+ */
+ZEND_DECLARE_MODULE_GLOBALS(yaf);   //zend_yaf_globals yaf_globals
 
 /* {{{ yaf_functions[]
 */
@@ -54,6 +60,11 @@ zend_function_entry yaf_functions[] = {
 /* }}} */
 
 /** {{{ PHP_INI_MH(OnUpdateSeparator)
+ */
+/**
+ * #define PHP_INI_MH		ZEND_INI_MH
+ * #define ZEND_INI_MH(name) int name(zend_ini_entry *entry, char *new_value, uint new_value_length, void *mh_arg1, void *mh_arg2, void *mh_arg3, int stage TSRMLS_DC)
+ * int OnUpdateSeparator(zend_ini_entry *entry, char *new_value, uint new_value_length, void *mh_arg1, void *mh_arg2, void *mh_arg3, int stage TSRMLS_DC)
  */
 PHP_INI_MH(OnUpdateSeparator) {
 	YAF_G(name_separator) = new_value; 
@@ -65,7 +76,23 @@ PHP_INI_MH(OnUpdateSeparator) {
 /** {{{ PHP_INI
  */
 PHP_INI_BEGIN()
+    /**
+     * #define STD_PHP_INI_ENTRY		STD_ZEND_INI_ENTRY
+     * #define STD_ZEND_INI_ENTRY(name, default_value, modifiable, on_modify, property_name, struct_type, struct_ptr) \
+	 *   ZEND_INI_ENTRY2(name, default_value, modifiable, on_modify, (void *) XtOffsetOf(struct_type, property_name), (void *) &struct_ptr)
+	 * #define ZEND_INI_ENTRY2(name, default_value, modifiable, on_modify, arg1, arg2) \
+	 *   ZEND_INI_ENTRY2_EX(name, default_value, modifiable, on_modify, arg1, arg2, NULL)
+	 * #define ZEND_INI_ENTRY2_EX(name, default_value, modifiable, on_modify, arg1, arg2, displayer) \
+	 *   ZEND_INI_ENTRY3_EX(name, default_value, modifiable, on_modify, arg1, arg2, NULL, displayer)
+	 * #define ZEND_INI_ENTRY3_EX(name, default_value, modifiable, on_modify, arg1, arg2, arg3, displayer) \
+	 *   { 0, modifiable, name, sizeof(name), on_modify, arg1, arg2, arg3, default_value, sizeof(default_value)-1, NULL, 0, 0, 0, displayer },
+     */
 	STD_PHP_INI_ENTRY("yaf.library",         	"",  PHP_INI_ALL, OnUpdateString, global_library, zend_yaf_globals, yaf_globals)
+	/**
+	 * #define STD_PHP_INI_BOOLEAN		STD_ZEND_INI_BOOLEAN
+	 * #define STD_ZEND_INI_BOOLEAN(name, default_value, modifiable, on_modify, property_name, struct_type, struct_ptr) \
+	 *   ZEND_INI_ENTRY3_EX(name, default_value, modifiable, on_modify, (void *) XtOffsetOf(struct_type, property_name), (void *) &struct_ptr, NULL, zend_ini_boolean_displayer_cb)
+	 */
 	STD_PHP_INI_BOOLEAN("yaf.action_prefer",   	"0", PHP_INI_ALL, OnUpdateBool, action_prefer, zend_yaf_globals, yaf_globals)
 	STD_PHP_INI_BOOLEAN("yaf.lowcase_path",    	"0", PHP_INI_ALL, OnUpdateBool, lowcase_path, zend_yaf_globals, yaf_globals)
 	STD_PHP_INI_BOOLEAN("yaf.use_spl_autoload", "0", PHP_INI_ALL, OnUpdateBool, use_spl_autoload, zend_yaf_globals, yaf_globals)
@@ -150,7 +177,12 @@ PHP_MINIT_FUNCTION(yaf)
 #endif
 
 	/* startup components */
-	YAF_STARTUP(application);
+	/*
+	 * #define YAF_STARTUP(module)	 		  	ZEND_MODULE_STARTUP_N(yaf_##module)(INIT_FUNC_ARGS_PASSTHRU)
+	 * #define ZEND_MODULE_STARTUP_N(module)       zm_startup_##module
+	 * #define INIT_FUNC_ARGS_PASSTHRU	type, module_number TSRMLS_CC
+	 */
+	YAF_STARTUP(application); //其实是调用YAF_STARTUP_FUNCTION(application) 宏转换之后都是zm_startup_yaf_application(type, module_number TSRMLS_CC)
 	YAF_STARTUP(bootstrap);
 	YAF_STARTUP(dispatcher);
 	YAF_STARTUP(loader);
